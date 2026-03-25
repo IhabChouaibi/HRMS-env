@@ -1,6 +1,8 @@
 package pfa.dev.presenceservice.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pfa.dev.presenceservice.dto.CheckInRequestDTO;
@@ -128,6 +130,21 @@ public class PresenceServiceImpl
                         .findAllByEmployeeId(employeeId);
 
         return presenceMapper.toDTOList(presences);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<PresenceResponseDTO> getEmployeeHistoryPaged(Long employeeId, Pageable pageable) {
+        return presenceRepository
+                .findAllByEmployeeId(employeeId, pageable)
+                .map(presenceMapper::toDTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<PresenceResponseDTO> getAllPresences(Pageable pageable) {
+        return presenceRepository.findAll(pageable)
+                .map(presenceMapper::toDTO);
     }
 
 }

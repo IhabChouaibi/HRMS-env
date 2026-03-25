@@ -1,5 +1,7 @@
 package pfa.dev.presenceservice.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import pfa.dev.presenceservice.dto.CheckInRequestDTO;
 import pfa.dev.presenceservice.dto.CheckOutRequestDTO;
 import pfa.dev.presenceservice.dto.PresenceResponseDTO;
@@ -13,5 +15,9 @@ public interface PresenceService {
     PresenceResponseDTO checkOut(CheckOutRequestDTO request);
 
     List<PresenceResponseDTO> getEmployeeHistory(Long employeeId);
+
+    Page<PresenceResponseDTO> getEmployeeHistoryPaged(Long employeeId, Pageable pageable);
+
+    Page<PresenceResponseDTO> getAllPresences(Pageable pageable);
 
 }

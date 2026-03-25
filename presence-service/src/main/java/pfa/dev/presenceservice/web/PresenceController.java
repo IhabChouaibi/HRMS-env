@@ -1,6 +1,8 @@
 package pfa.dev.presenceservice.web;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pfa.dev.presenceservice.dto.CheckInRequestDTO;
@@ -42,6 +44,27 @@ public class PresenceController {
 
         return ResponseEntity.ok(
                 presenceService.getEmployeeHistory(employeeId)
+        );
+    }
+
+    @GetMapping("/employee/{employeeId}/history")
+    public ResponseEntity<Page<PresenceResponseDTO>> getEmployeeHistoryPaged(
+            @PathVariable Long employeeId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(
+                presenceService.getEmployeeHistoryPaged(employeeId, PageRequest.of(page, size))
+        );
+    }
+
+    @GetMapping("/getall")
+    public ResponseEntity<Page<PresenceResponseDTO>> getAllPresences(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(
+                presenceService.getAllPresences(PageRequest.of(page, size))
         );
     }
 }
