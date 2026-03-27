@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pfa.dev.presenceservice.dto.CheckInRequestDTO;
 import pfa.dev.presenceservice.dto.CheckOutRequestDTO;
 import pfa.dev.presenceservice.dto.PresenceResponseDTO;
+import pfa.dev.presenceservice.dto.PresenceValidationRequestDTO;
 import pfa.dev.presenceservice.entity.Presence;
 import pfa.dev.presenceservice.entity.PresenceStatus;
 import pfa.dev.presenceservice.entity.WorkSchedule;
@@ -37,7 +38,6 @@ public class PresenceServiceImpl
         Long employeeId = request.getEmployeeId();
         LocalDate today = LocalDate.now();
 
-        // 1️⃣ Check if already checked-in
         presenceRepository
                 .findByEmployeeIdAndDate(employeeId, today)
                 .ifPresent(p -> {
@@ -45,7 +45,6 @@ public class PresenceServiceImpl
                             "Employee already checked in today");
                 });
 
-        // 2️⃣ Load active schedule
         WorkSchedule schedule =
                 workScheduleRepository.findByActiveTrue()
                         .orElseThrow(() ->
@@ -145,6 +144,28 @@ public class PresenceServiceImpl
     public Page<PresenceResponseDTO> getAllPresences(Pageable pageable) {
         return presenceRepository.findAll(pageable)
                 .map(presenceMapper::toDTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<PresenceResponseDTO> getPendingValidation(Pageable pageable) {
+        return presenceRepository
+                .findByValidatedFalse(pageable)
+                .map(presenceMapper::toDTO);
+    }
+
+    @Override
+    public PresenceResponseDTO validatePresence(Long id, PresenceValidationRequestDTO request) {
+        Presence presence = presenceRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Presence not found"));
+
+        presence.setValidated(true);
+
+        if (!request.isValidated()) {
+            presence.setStatus(PresenceStatus.ABSENT);
+        }
+
+        return presenceMapper.toDTO(presenceRepository.save(presence));
     }
 
 }

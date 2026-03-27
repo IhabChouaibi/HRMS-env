@@ -24,4 +24,6 @@ public interface PresenceRepository
     List<Presence> findAllByEmployeeId(Long employeeId);
 
     Page<Presence> findAllByEmployeeId(Long employeeId, Pageable pageable);
+
+    Page<Presence> findByValidatedFalse(Pageable pageable);
 }
